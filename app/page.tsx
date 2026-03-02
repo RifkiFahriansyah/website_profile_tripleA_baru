@@ -5,6 +5,9 @@ import MascotCorner       from "@/components/MascotCorner";
 import SignatureMenuSection from "@/components/SignatureMenuSection";
 import Footer             from "@/components/Footer";
 
+// Always fetch fresh data — prevents Vercel from caching the Supabase fetch
+export const dynamic = "force-dynamic";
+
 /**
  * Triple A Coffee — Single Page Application
  *
