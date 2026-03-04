@@ -98,8 +98,7 @@ export const STORY_PILLARS: StoryPillar[] = [
 // ─── Operational Hours ────────────────────────────────────────────────────────
 
 export const HOURS = [
-  { day: "Monday – Friday", time: "07:00 – 22:00" },
-  { day: "Saturday",        time: "08:00 – 23:00" },
-  { day: "Sunday",          time: "08:00 – 21:00" },
-  { day: "Public Holidays", time: "09:00 – 20:00" },
+  { day: "Tuesday – Saturday", time: "08:00 – 23:00" },
+  { day: "Monday",    time: "10:00 – 23:00" },
+  { day: "Sunday",          time: "14:00 – 23:00" },
 ];

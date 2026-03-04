@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Coffee, Menu, X, MapPin } from "lucide-react";
+import { Menu, X, MapPin } from "lucide-react";
+import Image from "next/image";
 import { NAV_LINKS } from "@/lib/data";
 
 /**
@@ -35,8 +36,14 @@ export default function Navbar() {
           onClick={() => setMobileOpen(false)}
           className="flex items-center gap-2.5 group"
         >
-          <span className="w-9 h-9 rounded-full bg-deep-red flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-            <Coffee size={18} className="text-white" />
+          <span className="w-9 h-9 rounded-full overflow-hidden shadow-lg group-hover:scale-110 transition-transform duration-300 shrink-0">
+            <Image
+              src="/images/logo/icon.png"
+              alt="Triple A Coffee Logo"
+              width={36}
+              height={36}
+              className="w-full h-full object-cover"
+            />
           </span>
           <span
             className="text-white text-xl font-bold tracking-widest uppercase"

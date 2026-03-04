@@ -1,6 +1,7 @@
 "use client";
 
-import { Coffee, MapPin, Clock, Instagram, Phone } from "lucide-react";
+import { MapPin, Clock, Instagram, Phone, Coffee } from "lucide-react";
+import Image from "next/image";
 import FadeInUp from "@/components/FadeInUp";
 import { HOURS } from "@/lib/data";
 
@@ -24,8 +25,14 @@ export default function Footer() {
             <div>
               {/* Logo lockup */}
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-full bg-deep-red flex items-center justify-center shadow-lg">
-                  <Coffee size={20} className="text-white" />
+                <div className="w-11 h-11 rounded-full overflow-hidden shadow-lg shrink-0">
+                  <Image
+                    src="/images/logo/icon.png"
+                    alt="Triple A Coffee Logo"
+                    width={44}
+                    height={44}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span
                   className="text-2xl font-black tracking-widest uppercase"
@@ -43,7 +50,7 @@ export default function Footer() {
               {/* Social Icons */}
               <div className="flex gap-4 mt-7">
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/triple.acoffee?igsh=YXdpdWtuOGI4dmh5"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow us on Instagram"
@@ -52,7 +59,7 @@ export default function Footer() {
                   <Instagram size={18} className="text-cream" />
                 </a>
                 <a
-                  href="https://wa.me/6281234567890"
+                  href="https://wa.me/6281366905551"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Contact us on WhatsApp"
@@ -107,15 +114,15 @@ export default function Footer() {
               </h4>
 
               <p className="text-cream/70 text-sm leading-relaxed mb-5">
-                Jl. Kopi Nusantara No. 17,
+                Jl. Mayor Ruslan, 9 Ilir, Kec. Ilir Timur. II
                 <br />
-                Kebayoran Baru, Jakarta Selatan 12110
+                Kota Palembang, Sumatera Selatan 30115
                 <br />
-                DKI Jakarta, Indonesia
+                Sumatera Selatan, Indonesia
               </p>
 
               <a
-                href="https://maps.google.com"
+                href="https://maps.app.goo.gl/MnJjgMbhDxxd2bZF6"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-deep-red text-white text-sm font-semibold hover:opacity-90 transition-all duration-300"
@@ -127,7 +134,7 @@ export default function Footer() {
               {/* Map Placeholder */}
               <div className="mt-5 rounded-2xl overflow-hidden border border-cream/10 h-28 bg-cream/5 flex items-center justify-center">
                 <a
-                  href="https://maps.google.com"
+                  href="https://maps.app.goo.gl/MnJjgMbhDxxd2bZF6"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex flex-col items-center gap-2 text-cream/40 hover:text-cream/70 transition-colors"
