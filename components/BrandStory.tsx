@@ -34,7 +34,7 @@ export default function BrandStory() {
           <FadeInUp delay={0.1}>
             <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-4/3">
               <Image
-                src="https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=800&q=80"
+                src="/images/brandstory/story.png"
                 alt="Triple A Coffee ambience"
                 fill
                 className="object-cover"

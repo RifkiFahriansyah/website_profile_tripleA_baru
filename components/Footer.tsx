@@ -27,7 +27,7 @@ export default function Footer() {
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-11 h-11 rounded-full overflow-hidden shadow-lg shrink-0">
                   <Image
-                    src="/images/logo/icon.png"
+                    src="/images/logo/logobaru.png"
                     alt="Triple A Coffee Logo"
                     width={44}
                     height={44}

@@ -22,7 +22,7 @@ export default function Hero() {
     >
       {/* ── Layer 1: Background Photo ── */}
       <Image
-          src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1920&q=85"
+          src="/images/hero/herotriplecomp.png"
         alt="Triple A Coffee interior"
         fill
         priority
@@ -36,18 +36,14 @@ export default function Hero() {
         style={{ backgroundColor: "rgba(27,48,34,0.72)" }}
       />
 
-      {/* ── Layer 3: Watermark — semi-transparent coffee image behind the title ── */}
+      {/* ── Layer 3: Watermark — subtle radial gradient behind the title ── */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-3">
-        <div className="relative w-120 h-120 md:w-170 md:h-170 opacity-[0.08]">
-          <Image
-            src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=900&q=60"
-            alt=""
-            aria-hidden="true"
-            fill
-            className="object-cover rounded-full"
-            sizes="680px"
-          />
-        </div>
+        <div
+          className="w-120 h-120 md:w-170 md:h-170 rounded-full opacity-[0.08]"
+          style={{
+            background: "radial-gradient(circle, rgba(245,245,220,0.6) 0%, rgba(139,0,0,0.3) 40%, transparent 70%)",
+          }}
+        />
       </div>
 
       {/* ── Layer 4: Hero Content ── */}

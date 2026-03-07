@@ -100,7 +100,7 @@ export default function MenuGallery() {
         {/* ── Responsive Grid ── */}
         <div className="flex flex-wrap justify-center gap-6">
           {GALLERY_ITEMS.map((item, i) => (
-            <FadeInUp key={item.id} delay={0.06 * i} className="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]">
+            <FadeInUp key={item.id} delay={Math.min(0.06 * i, 0.25)} className="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]">
               <motion.div
                 whileHover={{ scale: 1.03, y: -4 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}

@@ -59,7 +59,7 @@ export default function SignatureMenu({ items }: SignatureMenuProps) {
         {/* Responsive 3-column grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
           {displayItems.map((item, i) => (
-            <FadeInUp key={item.id} delay={0.05 * i}>
+            <FadeInUp key={item.id} delay={Math.min(0.05 * i, 0.25)}>
               <motion.div
                 whileHover={{ scale: 1.035, y: -6 }}
                 transition={{ type: "spring", stiffness: 280, damping: 18 }}

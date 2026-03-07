@@ -38,7 +38,7 @@ export default function Navbar() {
         >
           <span className="w-9 h-9 rounded-full overflow-hidden shadow-lg group-hover:scale-110 transition-transform duration-300 shrink-0">
             <Image
-              src="/images/logo/icon.png"
+              src="/images/logo/logobaru.png"
               alt="Triple A Coffee Logo"
               width={36}
               height={36}

@@ -5,6 +5,7 @@ import MascotCorner        from "@/components/MascotCorner";
 import SignatureMenuSection from "@/components/SignatureMenuSection";
 import MenuGallery         from "@/components/MenuGallery";
 import Footer              from "@/components/Footer";
+import WhatsAppFloat       from "@/components/WhatsAppFloat";
 
 // Always fetch fresh data — prevents Vercel from caching the Supabase fetch
 export const dynamic = "force-dynamic";
@@ -35,6 +36,7 @@ export default function Home() {
       <SignatureMenuSection />
       <MenuGallery />
       <Footer />
+      <WhatsAppFloat />
     </main>
   );
 }
