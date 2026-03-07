@@ -54,10 +54,10 @@ export default function MascotCorner() {
               <div className="relative rounded-3xl border-4 border-deep-red overflow-hidden shadow-[0_8px_48px_rgba(139,0,0,0.4)] hover:scale-105 transition duration-300">
                 <div className="relative w-40 h-48 md:w-44 md:h-52 bg-forest-green/40">
                   <Image
-                    src="/images/mascot/maskotbaru.png"
+                    src="/images/mascot/tesmaskotcenter.png"
                     alt="Triple A Mascot — The Coffee Guardian"
                     fill
-                    className="object-cover"
+                    className="object-contain object-center"
                     sizes="(max-width: 768px) 160px, 180px"
                   />
                 </div>
