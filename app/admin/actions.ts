@@ -79,32 +79,56 @@ export async function checkSession(): Promise<boolean> {
   return !!cookieStore.get(SESSION_COOKIE)?.value;
 }
 
-// ─── Image Local Storage (Replacing Supabase Storage) ─────────────────────────
+export async function updateAdminPasswordAction(formData: FormData): Promise<{ success?: boolean, error?: string }> {
+  try {
+    const newPassword = formData.get("newPassword") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+
+    if (!newPassword || newPassword.length < 6) {
+      return { error: "Password must be at least 6 characters." };
+    }
+
+    if (newPassword !== confirmPassword) {
+      return { error: "Passwords do not match." };
+    }
+
+    // Update password for 'admin' user
+    await pool.execute(
+      "UPDATE admins SET password_hash = ? WHERE username = 'admin'",
+      [newPassword]
+    );
+    
+    return { success: true };
+  } catch (err: any) {
+    console.error("[updateAdminPasswordAction]", err);
+    return { error: err.message };
+  }
+}
+
+// ─── Image Base64 Handler (Replacing Local Storage for Vercel) ──────────────
 
 async function uploadLocalImage(file: File | null, existingUrl?: string | null): Promise<string | null> {
   if (!file || file.size === 0) return existingUrl ?? null;
 
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const fileName = `upload-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-
-  await fs.mkdir(uploadDir, { recursive: true });
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(uploadDir, fileName), buffer);
-
-  return `/uploads/${fileName}`;
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64String = buffer.toString("base64");
+    
+    // Determine mime type (default to image/jpeg if missing)
+    const mimeType = file.type || "image/jpeg";
+    
+    // Return full Data URL
+    return `data:${mimeType};base64,${base64String}`;
+  } catch (err) {
+    console.error("[uploadImageToBase64]", err);
+    return existingUrl ?? null;
+  }
 }
 
 async function deleteLocalImage(imageUrl: string | null | undefined): Promise<void> {
-  if (!imageUrl || !imageUrl.startsWith("/uploads/")) return;
-  try {
-    const fileName = imageUrl.replace("/uploads/", "");
-    const fullPath = path.join(process.cwd(), "public", "uploads", fileName);
-    await fs.unlink(fullPath);
-  } catch (e) {
-    console.warn("Failed to delete local image", imageUrl);
-  }
+  // Base64 is stored in DB, no physical file to delete from disk
+  return;
 }
 
 // ─── Menu CRUD ───────────────────────────────────────────────────────────────

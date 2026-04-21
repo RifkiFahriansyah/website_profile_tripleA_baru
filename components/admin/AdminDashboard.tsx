@@ -15,6 +15,7 @@ import {
   Loader2,
   UtensilsCrossed,
   MapPin,
+  Settings,
   LayoutDashboard,
   Menu as MenuIcon,
 } from "lucide-react";
@@ -28,6 +29,7 @@ import {
   deleteMenuAction,
   getMenusAction,
   getBranchesAction,
+  updateAdminPasswordAction,
 } from "@/app/admin/actions";
 import type { MenuRow, BranchRow } from "@/lib/types";
 
@@ -43,7 +45,7 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ initialMenus, initialBranches }: AdminDashboardProps) {
   const [menus, setMenus]                 = useState<MenuRow[]>(initialMenus);
   const [branches, setBranches]           = useState<BranchRow[]>(initialBranches);
-  const [activeTab, setActiveTab]         = useState<"menu" | "branches">("menu");
+  const [activeTab, setActiveTab]         = useState<"menu" | "branches" | "settings">("menu");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPending, startTransition]      = useTransition();
   const [isLogoutPending, startLogout]    = useTransition();
@@ -216,6 +218,17 @@ export default function AdminDashboard({ initialMenus, initialBranches }: AdminD
             <MapPin size={18} />
             <span>Cabang</span>
           </button>
+          <button
+            onClick={() => setActiveTab("settings")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+              activeTab === "settings" 
+                ? "bg-deep-red text-white shadow-lg" 
+                : "text-white/60 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <Settings size={18} />
+            <span>Settings</span>
+          </button>
         </nav>
 
         <div className="p-4 border-t border-white/10">
@@ -242,7 +255,7 @@ export default function AdminDashboard({ initialMenus, initialBranches }: AdminD
               <MenuIcon size={20} />
             </button>
             <h2 className="text-lg font-bold text-forest-green capitalize">
-              {activeTab === 'menu' ? 'Menu Management' : 'Branch Management'}
+              {activeTab === 'menu' ? 'Menu Management' : activeTab === 'branches' ? 'Branch Management' : 'Settings'}
             </h2>
           </div>
 
@@ -359,11 +372,64 @@ export default function AdminDashboard({ initialMenus, initialBranches }: AdminD
                 )}
               </div>
             </>
-          ) : (
+          ) : activeTab === "branches" ? (
             <BranchManagement 
               initialBranches={branches} 
               onRefresh={refreshBranches} 
             />
+          ) : (
+            <div className="max-w-md">
+              <div className="mb-8">
+                <h3 className="text-2xl sm:text-3xl font-black text-forest-green" style={{ fontFamily: "var(--font-playfair), serif" }}>
+                  Settings
+                </h3>
+                <p className="text-forest-green/50 text-xs sm:text-sm mt-1">
+                  Update your administrative security credentials
+                </p>
+              </div>
+
+              <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <form 
+                  action={async (fd) => {
+                    const res = await updateAdminPasswordAction(fd);
+                    if (res.error) toast.error(res.error);
+                    else {
+                      toast.success("Password updated successfully!");
+                      (document.getElementById("settings-form") as HTMLFormElement)?.reset();
+                    }
+                  }} 
+                  id="settings-form"
+                  className="space-y-6"
+                >
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">New Password</label>
+                    <input 
+                      name="newPassword" 
+                      type="password" 
+                      required
+                      placeholder="Min. 6 characters"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-100 outline-none focus:border-deep-red focus:ring-4 focus:ring-deep-red/5 transition-all" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Confirm New Password</label>
+                    <input 
+                      name="confirmPassword" 
+                      type="password" 
+                      required
+                      placeholder="Repeat new password"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-100 outline-none focus:border-deep-red focus:ring-4 focus:ring-deep-red/5 transition-all" 
+                    />
+                  </div>
+                  <button 
+                    type="submit" 
+                    className="w-full py-4 bg-forest-green text-white rounded-xl font-bold hover:bg-forest-green/90 transition-all shadow-md active:scale-[0.98]"
+                  >
+                    Update Password
+                  </button>
+                </form>
+              </div>
+            </div>
           )}
         </main>
       </div>
