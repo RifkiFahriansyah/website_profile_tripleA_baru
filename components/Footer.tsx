@@ -43,8 +43,7 @@ export default function Footer() {
               </div>
 
               <p className="text-white/60 text-sm leading-relaxed max-w-xs">
-                Authentic beans. Extraordinary aroma. An atmosphere that feels
-                like home. That is the Triple A promise — every single day.
+                Biji kopi autentik. Aroma luar biasa. Suasana senyaman rumah. Itulah janji Triple A — setiap hari. Berada tepat di pusat studi Palembang.
               </p>
 
               {/* Social Icons */}
@@ -69,7 +68,7 @@ export default function Footer() {
                 </a>
                 <a
                   href="#menu"
-                  aria-label="Our Menu"
+                  aria-label="Menu Kami"
                   className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-deep-red hover:border-deep-red transition-all duration-300"
                 >
                   <Coffee size={18} className="text-white" />
@@ -86,7 +85,7 @@ export default function Footer() {
                 style={{ fontFamily: "var(--font-playfair), serif" }}
               >
                 <Clock size={18} className="text-deep-red" />
-                Operational Hours
+                Jam Operasional
               </h4>
               <ul className="space-y-3 text-sm text-white/70">
                 {HOURS.map((row) => (
@@ -110,15 +109,15 @@ export default function Footer() {
                 style={{ fontFamily: "var(--font-playfair), serif" }}
               >
                 <MapPin size={18} className="text-deep-red" />
-                Find Us
+                Lokasi Kami
               </h4>
 
               <p className="text-white/70 text-sm leading-relaxed mb-5">
                 Jl. Mayor Ruslan, 9 Ilir, Kec. Ilir Timur. II
                 <br />
-                Kota Palembang, Sumatera Selatan 30115
+                (Dekat IBA, MDP, & Musi Charitas)
                 <br />
-                Sumatera Selatan, Indonesia
+                Kota Palembang, Sumatera Selatan 30115
               </p>
 
               <a
@@ -128,7 +127,7 @@ export default function Footer() {
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-deep-red text-white text-sm font-semibold hover:opacity-90 transition-all duration-300"
               >
                 <MapPin size={15} />
-                Open in Google Maps
+                Buka di Google Maps
               </a>
 
               {/* Map Placeholder */}
@@ -140,7 +139,7 @@ export default function Footer() {
                   className="flex flex-col items-center gap-2 text-white/40 hover:text-white/70 transition-colors"
                 >
                   <MapPin size={28} />
-                  <span className="text-xs tracking-wider">View on Google Maps</span>
+                  <span className="text-xs tracking-wider">Lihat peta lokasi</span>
                 </a>
               </div>
             </div>

@@ -80,7 +80,7 @@ export default function Hero() {
             </h1>
 
             <p className="text-sm sm:text-base md:text-xl lg:text-lg xl:text-xl text-forest-green/80 lg:text-forest-green/70 max-w-xl mx-auto lg:mx-0 font-bold lg:font-medium leading-relaxed uppercase tracking-[0.2em]">
-              Authentic · Aroma · Atmosphere
+              Autentik · Aroma · Atmosfer
             </p>
 
             <div className="pt-6 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
@@ -89,7 +89,7 @@ export default function Hero() {
                 size="lg"
                 className="bg-deep-red hover:bg-deep-red/90 text-white rounded-2xl h-14 px-10 text-lg shadow-lg shadow-deep-red/20 active:scale-95 transition-all uppercase tracking-widest font-bold"
               >
-                <a href="#menu">The Menu</a>
+                <a href="#menu">Daftar Menu</a>
               </Button>
               <Button
                 asChild
@@ -98,7 +98,7 @@ export default function Hero() {
                 className="text-forest-green border-forest-green/20 hover:border-deep-red hover:text-deep-red hover:bg-white/50 rounded-2xl h-14 px-10 text-lg active:scale-95 transition-all gap-2 uppercase tracking-widest font-bold bg-white/30 backdrop-blur-sm"
               >
                 <a href="#about">
-                  Our Story <ArrowDown size={20} className="animate-bounce" />
+                  Cerita Kami <ArrowDown size={20} className="animate-bounce" />
                 </a>
               </Button>
             </div>
@@ -125,14 +125,14 @@ export default function Hero() {
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-10 h-1 bg-deep-red" />
                   <span className="text-sm font-black uppercase tracking-widest">
-                    Our Philosophy
+                    Filosofi Kami
                   </span>
                 </div>
                 <h3
                   className="text-3xl font-bold"
                   style={{ fontFamily: "var(--font-playfair), serif" }}
                 >
-                  Authentic. Aroma. Atmosphere.
+                  Autentik. Aroma. Atmosfer.
                 </h3>
               </div>
             </div>

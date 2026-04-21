@@ -25,24 +25,22 @@ export default function BrandStory() {
             <div className="space-y-6 flex flex-col items-center lg:items-start text-center lg:text-left">
               <div className="flex items-center gap-3 text-deep-red font-bold uppercase tracking-widest text-xs shadow-sm bg-white/50 border border-gray-100 rounded-full px-4 py-2 w-fit">
                 <Sparkles size={16} />
-                Our Philosophy
+                Filosofi Kami
               </div>
               <h2
                 className="text-4xl sm:text-5xl md:text-7xl font-bold text-forest-green leading-[1.1] tracking-tight"
                 style={{ fontFamily: "var(--font-playfair), serif" }}
               >
-                The Triple A <br />
-                <span className="text-deep-red">Philosophy.</span>
+                Filosofi <br />
+                <span className="text-deep-red">Triple A.</span>
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-forest-green/60 leading-relaxed max-w-xl font-medium">
-                Experience the Triple A promise — every single day. We blend the
-                mysterious depths of tradition with the raw energy of modern
-                passion.
+                Nikmati janji Triple A setiap hari. Berlokasi strategis di pusat kota Palembang, kami menjadi tempat favorit bagi para pelajar untuk berkumpul dan berkarya.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-6 border-t border-gray-100 text-center sm:text-left">
-              {STORY_PILLARS.slice(0, 2).map((pillar, idx) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pt-6 border-t border-gray-100 text-center sm:text-left">
+              {STORY_PILLARS.map((pillar, idx) => (
                 <div key={pillar.title} className="space-y-4 group flex flex-col items-center sm:items-start">
                   <div className="w-14 h-14 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-center text-deep-red group-hover:bg-deep-red group-hover:text-white transition-all duration-500 shadow-sm font-black text-2xl">
                     {pillar.letter}
@@ -67,7 +65,7 @@ export default function BrandStory() {
                 className="text-forest-green hover:bg-forest-green/5 p-0 hover:px-4 rounded-2xl group transition-all h-auto text-lg font-bold"
               >
                 <a href="#menu" className="flex items-center">
-                  Explore our signature menu{" "}
+                  Lihat menu andalan kami{" "}
                   <ArrowUpRight
                     size={24}
                     className="ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
@@ -87,7 +85,7 @@ export default function BrandStory() {
             <div className="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white group aspect-[4/5] lg:aspect-auto lg:h-[600px]">
               <Image
                 src="/images/brandstory/story.png"
-                alt="Triple A Coffee Community"
+                alt="Halaman Depan Triple A Coffee"
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-[2s]"
               />

@@ -85,7 +85,7 @@ export default function Navbar() {
             >
               <Link href="/#footer">
                 <MapPin size={14} className="mr-2" />
-                Visit Us
+                Kunjungi Kami
               </Link>
             </Button>
           </div>
