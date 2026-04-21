@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { X, Upload, Loader2 } from "lucide-react";
-import type { MenuRow } from "@/lib/database.types";
+import type { MenuRow } from "@/lib/types";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -161,6 +161,21 @@ export default function MenuFormModal({
                 placeholder="Short, evocative description of this item…"
                 className={`${inputCx} resize-none`}
               />
+            </div>
+
+            {/* ── Category ── */}
+            <div>
+              <label className={labelCx}>Category <span className="text-deep-red">*</span></label>
+              <select
+                name="category"
+                required
+                defaultValue={initial?.category ?? "coffee"}
+                className={inputCx}
+              >
+                <option value="coffee">Coffee</option>
+                <option value="non-coffee">Non Coffee</option>
+                <option value="foods">Foods</option>
+              </select>
             </div>
 
             {/* ── Image Upload ── */}

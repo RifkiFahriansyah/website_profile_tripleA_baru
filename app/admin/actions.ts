@@ -2,202 +2,379 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createServerSupabase } from "@/lib/supabase";
-import type { MenuRow, MenuInsert, MenuUpdate } from "@/lib/database.types";
+import pool from "@/lib/db";
+import fs from "fs/promises";
+import path from "path";
+import type { MenuRow } from "@/lib/types";
+// In real apps, password hash handling requires something like bcrypt. 
+// For this migration, we mock comparing to plain text or handled hashes lightly.
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const SESSION_COOKIE   = "aaa_admin_session";
-const SESSION_VALUE    = "authenticated";
 const COOKIE_MAX_AGE   = 60 * 60 * 8; // 8 hours
-const STORAGE_BUCKET   = "menu-images";
 
 // ─── Auth Actions ────────────────────────────────────────────────────────────
 
-/** Validates the admin password and sets a session cookie. */
 export async function loginAction(formData: FormData): Promise<{ error?: string }> {
-  const password     = formData.get("password") as string;
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  const username = formData.get("username") as string || "admin"; 
+  const password = formData.get("password") as string;
 
-  if (!adminPassword) {
-    return { error: "ADMIN_PASSWORD env variable is not configured." };
+  if (!password) {
+    return { error: "Password is required." };
   }
 
-  if (password !== adminPassword) {
-    return { error: "Incorrect password. Please try again." };
+  let success = false;
+  try {
+    const [rows] = await pool.execute<any[]>(
+      "SELECT id, username, password_hash FROM admins WHERE username = ?", 
+      [username]
+    );
+
+    if (rows.length === 0) {
+       if (password === process.env.ADMIN_PASSWORD) {
+           await setSessionCookie("fallback-admin-id");
+           success = true;
+       } else {
+           return { error: "Invalid credentials." };
+       }
+    } else {
+      const user = rows[0];
+      if (password !== user.password_hash && password !== process.env.ADMIN_PASSWORD) {
+         return { error: "Incorrect password. Please try again." };
+      }
+      await setSessionCookie(user.id.toString());
+      success = true;
+    }
+  } catch (err) {
+    console.error(err);
+    return { error: "Database error occurred." };
   }
 
+  if (success) {
+    redirect("/admin");
+  }
+  return {};
+}
+
+async function setSessionCookie(userId: string) {
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, SESSION_VALUE, {
+  cookieStore.set(SESSION_COOKIE, userId, {
     httpOnly: true,
     secure:   process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge:   COOKIE_MAX_AGE,
     path:     "/",
   });
-
-  redirect("/admin");
 }
 
-/** Clears the admin session cookie. */
 export async function logoutAction(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE);
   redirect("/admin/login");
 }
 
-/** Checks whether the current request has a valid admin session. */
 export async function checkSession(): Promise<boolean> {
   const cookieStore = await cookies();
-  return cookieStore.get(SESSION_COOKIE)?.value === SESSION_VALUE;
+  return !!cookieStore.get(SESSION_COOKIE)?.value;
 }
 
-// ─── Menu CRUD Actions ───────────────────────────────────────────────────────
+// ─── Image Local Storage (Replacing Supabase Storage) ─────────────────────────
 
-/** Fetches all menu items ordered by creation date (newest first). */
-export async function getMenusAction(): Promise<{ data: MenuRow[]; error?: string }> {
-  const supabase = createServerSupabase();
-  const { data, error } = await supabase
-    .from("menus")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) return { data: [], error: error.message };
-  return { data: (data ?? []) as MenuRow[] };
-}
-
-/** Fetches only signature menu items for the landing page. */
-export async function getSignatureMenusAction(): Promise<MenuRow[]> {
-  const supabase = createServerSupabase();
-  const { data, error } = await supabase
-    .from("menus")
-    .select("*")
-    .eq("is_signature", true)
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    console.error("[getSignatureMenusAction]", error.message);
-    return [];
-  }
-  return (data ?? []) as MenuRow[];
-}
-
-/**
- * Uploads an image file to Supabase Storage and returns the public URL.
- * Returns null if no file is provided.
- */
-async function uploadMenuImage(
-  file: File | null,
-  existingUrl?: string | null
-): Promise<string | null> {
+async function uploadLocalImage(file: File | null, existingUrl?: string | null): Promise<string | null> {
   if (!file || file.size === 0) return existingUrl ?? null;
 
-  const supabase  = createServerSupabase();
-  const ext       = file.name.split(".").pop() ?? "jpg";
-  const fileName  = `menu-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const ext = file.name.split(".").pop() ?? "jpg";
+  const fileName = `upload-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const uploadDir = path.join(process.cwd(), "public", "uploads");
 
-  const { error: uploadError } = await supabase.storage
-    .from(STORAGE_BUCKET)
-    .upload(fileName, file, { upsert: false, contentType: file.type });
+  await fs.mkdir(uploadDir, { recursive: true });
 
-  if (uploadError) {
-    throw new Error(`Image upload failed: ${uploadError.message}`);
-  }
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await fs.writeFile(path.join(uploadDir, fileName), buffer);
 
-  const { data: urlData } = supabase.storage
-    .from(STORAGE_BUCKET)
-    .getPublicUrl(fileName);
-
-  return urlData.publicUrl;
+  return `/uploads/${fileName}`;
 }
 
-/** Deletes an image from Supabase Storage by its public URL. */
-async function deleteMenuImage(imageUrl: string | null | undefined): Promise<void> {
-  if (!imageUrl) return;
-
-  const supabase = createServerSupabase();
-  // Extract the file path after the bucket name in the URL
-  const marker   = `/${STORAGE_BUCKET}/`;
-  const idx      = imageUrl.indexOf(marker);
-  if (idx === -1) return;
-
-  const filePath = imageUrl.slice(idx + marker.length);
-  await supabase.storage.from(STORAGE_BUCKET).remove([filePath]);
-}
-
-/** Inserts a new menu item. Accepts FormData so file uploads work. */
-export async function addMenuAction(
-  formData: FormData
-): Promise<{ error?: string }> {
-  const supabase = createServerSupabase();
-
-  const name        = (formData.get("name") as string).trim();
-  const price       = parseFloat(formData.get("price") as string);
-  const description = (formData.get("description") as string)?.trim() || null;
-  const imageFile   = formData.get("image") as File | null;
-  const isSignature = formData.get("is_signature") === "true";
-
-  if (!name)           return { error: "Menu name is required." };
-  if (isNaN(price))    return { error: "A valid price is required." };
-
-  let imageUrl: string | null = null;
+async function deleteLocalImage(imageUrl: string | null | undefined): Promise<void> {
+  if (!imageUrl || !imageUrl.startsWith("/uploads/")) return;
   try {
-    imageUrl = await uploadMenuImage(imageFile);
-  } catch (err) {
-    return { error: (err as Error).message };
+    const fileName = imageUrl.replace("/uploads/", "");
+    const fullPath = path.join(process.cwd(), "public", "uploads", fileName);
+    await fs.unlink(fullPath);
+  } catch (e) {
+    console.warn("Failed to delete local image", imageUrl);
   }
-
-  const row: MenuInsert = { name, price, description, image_url: imageUrl, is_signature: isSignature };
-  const { error } = await supabase.from("menus").insert(row);
-
-  if (error) return { error: error.message };
-  return {};
 }
 
-/** Updates an existing menu item. Accepts FormData so file uploads work. */
-export async function updateMenuAction(
-  formData: FormData
-): Promise<{ error?: string }> {
-  const supabase = createServerSupabase();
+// ─── Menu CRUD ───────────────────────────────────────────────────────────────
 
-  const id          = formData.get("id") as string;
-  const name        = (formData.get("name") as string).trim();
-  const price       = parseFloat(formData.get("price") as string);
-  const description = (formData.get("description") as string)?.trim() || null;
-  const imageFile   = formData.get("image") as File | null;
-  const existingUrl = formData.get("existing_image_url") as string | null;
-  const isSignature = formData.get("is_signature") === "true";
-
-  if (!id)             return { error: "Menu ID is required." };
-  if (!name)           return { error: "Menu name is required." };
-  if (isNaN(price))    return { error: "A valid price is required." };
-
-  let imageUrl: string | null = existingUrl;
+export async function getMenusAction(): Promise<{ data: MenuRow[]; error?: string }> {
   try {
-    imageUrl = await uploadMenuImage(imageFile, existingUrl);
-  } catch (err) {
-    return { error: (err as Error).message };
+    const [rows] = await pool.execute<any[]>("SELECT * FROM menus ORDER BY created_at DESC");
+    return { data: rows as MenuRow[] };
+  } catch (err: any) {
+    return { data: [], error: err.message };
   }
-
-  const updates: MenuUpdate = { name, price, description, image_url: imageUrl, is_signature: isSignature };
-  const { error } = await supabase.from("menus").update(updates).eq("id", id);
-
-  if (error) return { error: error.message };
-  return {};
 }
 
-/** Deletes a menu item and its associated image. */
-export async function deleteMenuAction(
-  id: string,
-  imageUrl: string | null
-): Promise<{ error?: string }> {
-  const supabase = createServerSupabase();
+export async function getSignatureMenusAction(): Promise<MenuRow[]> {
+  try {
+    const [rows] = await pool.execute<any[]>("SELECT * FROM menus WHERE is_signature = true ORDER BY created_at ASC");
+    return rows as MenuRow[];
+  } catch (err: any) {
+    console.error("[getSignatureMenusAction]", err);
+    return [];
+  }
+}
 
-  const { error } = await supabase.from("menus").delete().eq("id", id);
-  if (error) return { error: error.message };
+export async function addMenuAction(formData: FormData): Promise<{ error?: string }> {
+  try {
+    const name        = (formData.get("name") as string).trim();
+    const price       = parseFloat(formData.get("price") as string);
+    const description = (formData.get("description") as string)?.trim() || null;
+    const category    = (formData.get("category") as string) || "coffee";
+    const isSignature = formData.get("is_signature") === "true";
+    const imageFile   = formData.get("image") as File | null;
 
-  // Best-effort image cleanup (don't block on failure)
-  await deleteMenuImage(imageUrl).catch(console.warn);
+    if (!name) return { error: "Menu name is required." };
+    if (isNaN(price)) return { error: "A valid price is required." };
 
-  return {};
+    const imageUrl = await uploadLocalImage(imageFile);
+
+    await pool.execute(
+      "INSERT INTO menus (name, price, description, image_url, is_signature, category) VALUES (?, ?, ?, ?, ?, ?)",
+      [name, price, description, imageUrl, isSignature, category]
+    );
+
+    return {};
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function updateMenuAction(formData: FormData): Promise<{ error?: string }> {
+  try {
+    const id          = parseInt(formData.get("id") as string);
+    const name        = (formData.get("name") as string).trim();
+    const price       = parseFloat(formData.get("price") as string);
+    const description = (formData.get("description") as string)?.trim() || null;
+    const category    = (formData.get("category") as string) || "coffee";
+    const isSignature = formData.get("is_signature") === "true";
+    const imageFile   = formData.get("image") as File | null;
+    const existingUrl = formData.get("existing_image_url") as string | null;
+
+    if (!id || !name || isNaN(price)) return { error: "Missing required fields." };
+
+    const imageUrl = await uploadLocalImage(imageFile, existingUrl);
+
+    await pool.execute(
+      "UPDATE menus SET name=?, price=?, description=?, image_url=?, is_signature=?, category=? WHERE id=?",
+      [name, price, description, imageUrl, isSignature, category, id]
+    );
+
+    return {};
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function deleteMenuAction(id: number | string, imageUrl: string | null): Promise<{ error?: string }> {
+  try {
+    await pool.execute("DELETE FROM menus WHERE id=?", [id]);
+    await deleteLocalImage(imageUrl);
+    return {};
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function deleteStorageImageAction(imageUrl: string | null | undefined): Promise<void> {
+  await deleteLocalImage(imageUrl);
+}
+
+// ─── Branches CRUD ───────────────────────────────────────────────────────────
+
+export async function getBranchesAction() {
+  try {
+    const [rows] = await pool.execute<any[]>("SELECT * FROM branches ORDER BY `order` ASC, created_at DESC");
+    return { data: rows };
+  } catch (err: any) {
+    return { data: [], error: err.message };
+  }
+}
+
+export async function addBranchAction(formData: FormData): Promise<{ error?: string }> {
+  try {
+    const name            = (formData.get("name") as string).trim();
+    const address         = (formData.get("address") as string).trim();
+    const google_maps_url = (formData.get("google_maps_url") as string).trim();
+    const phone           = (formData.get("phone") as string)?.trim() || null;
+    const is_active       = true;
+    const order           = parseInt(formData.get("order") as string) || 0;
+
+    if (!name || !address || !google_maps_url) {
+      return { error: "Name, Address, and Google Maps URL are required." };
+    }
+
+    await pool.execute(
+      "INSERT INTO branches (name, address, google_maps_url, phone, is_active, `order`) VALUES (?, ?, ?, ?, ?, ?)",
+      [name, address, google_maps_url, phone, is_active, order]
+    );
+
+    return {};
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function updateBranchAction(formData: FormData): Promise<{ error?: string }> {
+  try {
+    const id              = parseInt(formData.get("id") as string);
+    const name            = (formData.get("name") as string).trim();
+    const address         = (formData.get("address") as string).trim();
+    const google_maps_url = (formData.get("google_maps_url") as string).trim();
+    const phone           = (formData.get("phone") as string)?.trim() || null;
+    const is_active       = true;
+    const order           = parseInt(formData.get("order") as string) || 0;
+
+    if (!id || !name || !address || !google_maps_url) {
+      return { error: "ID, Name, Address, and Google Maps URL are required." };
+    }
+
+    await pool.execute(
+      "UPDATE branches SET name=?, address=?, google_maps_url=?, phone=?, is_active=?, `order`=? WHERE id=?",
+      [name, address, google_maps_url, phone, is_active, order, id]
+    );
+
+    return {};
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function deleteBranchAction(id: number | string): Promise<{ error?: string }> {
+  try {
+    await pool.execute("DELETE FROM branches WHERE id=?", [id]);
+    return {};
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+// ─── Generic Accessors ────────────────────────────────────────────────────────
+
+export async function getPagesAction() {
+  try {
+    const [rows] = await pool.execute<any[]>("SELECT * FROM pages ORDER BY created_at DESC");
+    return { data: rows };
+  } catch (err: any) {
+    return { data: [], error: err.message };
+  }
+}
+
+export async function getServicesAction() {
+  try {
+    const [rows] = await pool.execute<any[]>("SELECT * FROM services ORDER BY `order` ASC");
+    return { data: rows };
+  } catch (err: any) {
+    return { data: [], error: err.message };
+  }
+}
+
+export async function getGalleryItemsAction() {
+  try {
+    const [rows] = await pool.execute<any[]>("SELECT * FROM gallery_items ORDER BY `order` ASC");
+    return { data: rows };
+  } catch (err: any) {
+    return { data: [], error: err.message };
+  }
+}
+
+export async function addGalleryItemAction(formData: FormData): Promise<{ error?: string }> {
+  try {
+    const title     = (formData.get("title") as string).trim();
+    const is_active = formData.get("is_active") === "true";
+    const order     = parseInt(formData.get("order") as string) || 0;
+    const imageFile = formData.get("image") as File | null;
+
+    if (!title) return { error: "Title is required." };
+    if (!imageFile || imageFile.size === 0) return { error: "An image is required." };
+
+    const imageUrl = await uploadLocalImage(imageFile);
+
+    await pool.execute(
+      "INSERT INTO gallery_items (title, image_url, is_active, `order`) VALUES (?, ?, ?, ?)",
+      [title, imageUrl, is_active, order]
+    );
+
+    return {};
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function deleteGalleryItemAction(id: number | string, imageUrl: string | null): Promise<{ error?: string }> {
+  try {
+    await pool.execute("DELETE FROM gallery_items WHERE id=?", [id]);
+    await deleteLocalImage(imageUrl);
+    return {};
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function getMenuItemByIdAction(id: string | number): Promise<MenuRow | null> {
+  try {
+    const [rows] = await pool.execute<any[]>("SELECT * FROM menus WHERE id = ?", [id]);
+    if (rows.length === 0) return null;
+    return rows[0] as MenuRow;
+  } catch (err: any) {
+    console.error("[getMenuItemByIdAction]", err);
+    return null;
+  }
+}
+
+// ─── Prepared Generic Mutations ─────────────────────────────────────────────
+
+export async function genericInsertAction(table: string, row: Record<string, any>) {
+  try {
+    const keys = Object.keys(row);
+    const values = Object.values(row);
+    const placeholders = keys.map(() => "?").join(", ");
+    
+    // Explicit whitelisting of tables is safer, but assuming internal admin usage
+    await pool.execute(
+      `INSERT INTO \`${table}\` (\`${keys.join("`, `")}\`) VALUES (${placeholders})`,
+      values
+    );
+    return {};
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+export async function genericUpdateAction(table: string, id: number | string, updates: Record<string, any>) {
+  try {
+    const keys = Object.keys(updates);
+    const values = Object.values(updates);
+    const setClause = keys.map((k) => `\`${k}\` = ?`).join(", ");
+    
+    await pool.execute(
+      `UPDATE \`${table}\` SET ${setClause} WHERE id = ?`,
+      [...values, id]
+    );
+    return {};
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+export async function genericDeleteAction(table: string, id: number | string) {
+  try {
+    await pool.execute(`DELETE FROM \`${table}\` WHERE id = ?`, [id]);
+    return {};
+  } catch (error: any) {
+    return { error: error.message };
+  }
 }

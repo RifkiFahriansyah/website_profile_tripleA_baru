@@ -1,94 +1,99 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { Sparkles, ArrowUpRight, Coffee, Heart, Zap } from "lucide-react";
 import Image from "next/image";
-import { Coffee } from "lucide-react";
-import FadeInUp from "@/components/FadeInUp";
+import { Button } from "./ui/button";
 import { STORY_PILLARS } from "@/lib/data";
 
-/**
- * Brand Story section — explains the Triple A philosophy.
- * Two-column layout: image on the left, pillar cards on the right.
- */
 export default function BrandStory() {
   return (
-    <section id="story" className="bg-cream py-24 md:py-32">
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
+    <section id="story" className="py-24 bg-white relative overflow-hidden">
+      {/* Soft decorative background */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-forest-green/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 -z-0" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-deep-red/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 -z-0" />
 
-        {/* Section Header */}
-        <FadeInUp className="text-center mb-16">
-          <p className="text-deep-red tracking-[0.3em] uppercase text-xs font-bold mb-3">
-            Our Philosophy
-          </p>
-          <h2
-            className="text-4xl md:text-5xl font-black text-forest-green leading-tight"
-            style={{ fontFamily: "var(--font-playfair), serif" }}
+      <div className="container mx-auto px-4 md:px-10 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-32 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="space-y-10"
           >
-            The Triple A Philosophy
-          </h2>
-        </FadeInUp>
+            <div className="space-y-6 flex flex-col items-center lg:items-start text-center lg:text-left">
+              <div className="flex items-center gap-3 text-deep-red font-bold uppercase tracking-widest text-xs shadow-sm bg-white/50 border border-gray-100 rounded-full px-4 py-2 w-fit">
+                <Sparkles size={16} />
+                Our Philosophy
+              </div>
+              <h2
+                className="text-4xl sm:text-5xl md:text-7xl font-bold text-forest-green leading-[1.1] tracking-tight"
+                style={{ fontFamily: "var(--font-playfair), serif" }}
+              >
+                The Triple A <br />
+                <span className="text-deep-red">Philosophy.</span>
+              </h2>
+              <p className="text-base sm:text-lg md:text-xl text-forest-green/60 leading-relaxed max-w-xl font-medium">
+                Experience the Triple A promise — every single day. We blend the
+                mysterious depths of tradition with the raw energy of modern
+                passion.
+              </p>
+            </div>
 
-        {/* Two-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-6 border-t border-gray-100 text-center sm:text-left">
+              {STORY_PILLARS.slice(0, 2).map((pillar, idx) => (
+                <div key={pillar.title} className="space-y-4 group flex flex-col items-center sm:items-start">
+                  <div className="w-14 h-14 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-center text-deep-red group-hover:bg-deep-red group-hover:text-white transition-all duration-500 shadow-sm font-black text-2xl">
+                    {pillar.letter}
+                  </div>
+                  <h4
+                    className="font-bold text-forest-green text-xl tracking-tight"
+                    style={{ fontFamily: "var(--font-playfair), serif" }}
+                  >
+                    {pillar.title}
+                  </h4>
+                  <p className="text-sm text-gray-500 font-medium leading-relaxed max-w-[280px] sm:max-w-none">
+                    {pillar.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
 
-          {/* ── Image Side ── */}
-          <FadeInUp delay={0.1}>
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-4/3">
+            <div className="pt-4 flex justify-center lg:justify-start">
+              <Button
+                asChild
+                variant="ghost"
+                className="text-forest-green hover:bg-forest-green/5 p-0 hover:px-4 rounded-2xl group transition-all h-auto text-lg font-bold"
+              >
+                <a href="#menu" className="flex items-center">
+                  Explore our signature menu{" "}
+                  <ArrowUpRight
+                    size={24}
+                    className="ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                  />
+                </a>
+              </Button>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="relative"
+          >
+            <div className="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white group aspect-[4/5] lg:aspect-auto lg:h-[600px]">
               <Image
                 src="/images/brandstory/story.png"
-                alt="Triple A Coffee ambience"
+                alt="Triple A Coffee Community"
                 fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover hover:scale-105 transition-transform duration-[2s]"
               />
-              <div className="absolute top-5 left-5 px-4 py-2 bg-forest-green rounded-full shadow-lg">
-                <span className="text-cream text-xs font-bold tracking-widest uppercase">
-                  Est. 2022
-                </span>
-              </div>
+              <div className="absolute inset-0 bg-forest-green/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             </div>
-          </FadeInUp>
-
-          {/* ── Pillars Side ── */}
-          <div className="flex flex-col gap-8">
-            {STORY_PILLARS.map((pillar, i) => (
-              <FadeInUp key={pillar.title} delay={0.15 + i * 0.12}>
-                <div className="flex gap-5 items-start group">
-                  {/* Letter Badge */}
-                  <div className="shrink-0 w-14 h-14 rounded-2xl bg-forest-green flex items-center justify-center shadow-lg group-hover:bg-deep-red transition-colors duration-300">
-                    <span
-                      className="text-2xl font-black text-cream"
-                      style={{ fontFamily: "var(--font-playfair), serif" }}
-                    >
-                      {pillar.letter}
-                    </span>
-                  </div>
-                  {/* Copy */}
-                  <div>
-                    <h3
-                      className="text-xl font-bold text-forest-green mb-2"
-                      style={{ fontFamily: "var(--font-playfair), serif" }}
-                    >
-                      {pillar.title}
-                    </h3>
-                    <p className="text-forest-green/70 leading-relaxed text-[0.95rem]">
-                      {pillar.desc}
-                    </p>
-                  </div>
-                </div>
-              </FadeInUp>
-            ))}
-
-            {/* CTA */}
-            <FadeInUp delay={0.5}>
-              <a
-                href="#menu"
-                className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-deep-red text-white font-semibold tracking-wider uppercase text-sm hover:opacity-90 hover:shadow-lg active:scale-95 transition-all duration-300 self-start"
-              >
-                <Coffee size={16} />
-                Taste the Difference
-              </a>
-            </FadeInUp>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

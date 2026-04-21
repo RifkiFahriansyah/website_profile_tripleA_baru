@@ -14,7 +14,7 @@ import { HOURS } from "@/lib/data";
  */
 export default function Footer() {
   return (
-    <footer id="footer" className="bg-forest-green text-cream">
+    <footer id="footer" className="bg-forest-green text-white">
 
       {/* ── Top Section ── */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-20">
@@ -42,7 +42,7 @@ export default function Footer() {
                 </span>
               </div>
 
-              <p className="text-cream/60 text-sm leading-relaxed max-w-xs">
+              <p className="text-white/60 text-sm leading-relaxed max-w-xs">
                 Authentic beans. Extraordinary aroma. An atmosphere that feels
                 like home. That is the Triple A promise — every single day.
               </p>
@@ -54,25 +54,25 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow us on Instagram"
-                  className="w-10 h-10 rounded-full border border-cream/20 flex items-center justify-center hover:bg-deep-red hover:border-deep-red transition-all duration-300"
+                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-deep-red hover:border-deep-red transition-all duration-300"
                 >
-                  <Instagram size={18} className="text-cream" />
+                  <Instagram size={18} className="text-white" />
                 </a>
                 <a
                   href="https://wa.me/6281366905551"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Contact us on WhatsApp"
-                  className="w-10 h-10 rounded-full border border-cream/20 flex items-center justify-center hover:bg-deep-red hover:border-deep-red transition-all duration-300"
+                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-deep-red hover:border-deep-red transition-all duration-300"
                 >
-                  <Phone size={18} className="text-cream" />
+                  <Phone size={18} className="text-white" />
                 </a>
                 <a
                   href="#menu"
                   aria-label="Our Menu"
-                  className="w-10 h-10 rounded-full border border-cream/20 flex items-center justify-center hover:bg-deep-red hover:border-deep-red transition-all duration-300"
+                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-deep-red hover:border-deep-red transition-all duration-300"
                 >
-                  <Coffee size={18} className="text-cream" />
+                  <Coffee size={18} className="text-white" />
                 </a>
               </div>
             </div>
@@ -88,14 +88,14 @@ export default function Footer() {
                 <Clock size={18} className="text-deep-red" />
                 Operational Hours
               </h4>
-              <ul className="space-y-3 text-sm text-cream/70">
+              <ul className="space-y-3 text-sm text-white/70">
                 {HOURS.map((row) => (
                   <li
                     key={row.day}
-                    className="flex justify-between gap-4 border-b border-cream/10 pb-2.5 last:border-0"
+                    className="flex justify-between gap-4 border-b border-white/10 pb-2.5 last:border-0"
                   >
                     <span>{row.day}</span>
-                    <span className="text-cream font-semibold">{row.time}</span>
+                    <span className="text-white font-semibold">{row.time}</span>
                   </li>
                 ))}
               </ul>
@@ -113,7 +113,7 @@ export default function Footer() {
                 Find Us
               </h4>
 
-              <p className="text-cream/70 text-sm leading-relaxed mb-5">
+              <p className="text-white/70 text-sm leading-relaxed mb-5">
                 Jl. Mayor Ruslan, 9 Ilir, Kec. Ilir Timur. II
                 <br />
                 Kota Palembang, Sumatera Selatan 30115
@@ -132,12 +132,12 @@ export default function Footer() {
               </a>
 
               {/* Map Placeholder */}
-              <div className="mt-5 rounded-2xl overflow-hidden border border-cream/10 h-28 bg-cream/5 flex items-center justify-center">
+              <div className="mt-5 rounded-2xl overflow-hidden border border-white/10 h-28 bg-white/5 flex items-center justify-center">
                 <a
                   href="https://maps.app.goo.gl/MnJjgMbhDxxd2bZF6"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-col items-center gap-2 text-cream/40 hover:text-cream/70 transition-colors"
+                  className="flex flex-col items-center gap-2 text-white/40 hover:text-white/70 transition-colors"
                 >
                   <MapPin size={28} />
                   <span className="text-xs tracking-wider">View on Google Maps</span>
@@ -149,8 +149,8 @@ export default function Footer() {
       </div>
 
       {/* ── Bottom Bar ── */}
-      <div className="border-t border-cream/10">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cream/40">
+      <div className="border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40">
           <p>© {new Date().getFullYear()} Triple A Coffee. All rights reserved.</p>
           <p>Authentic · Aroma · Atmosphere</p>
         </div>

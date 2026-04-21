@@ -14,28 +14,37 @@ import {
   ImageOff,
   Loader2,
   UtensilsCrossed,
+  MapPin,
+  LayoutDashboard,
+  Menu as MenuIcon,
 } from "lucide-react";
 
 import MenuFormModal, { type ModalMode } from "@/components/admin/MenuFormModal";
+import BranchManagement from "@/components/admin/BranchManagement";
 import {
   logoutAction,
   addMenuAction,
   updateMenuAction,
   deleteMenuAction,
   getMenusAction,
+  getBranchesAction,
 } from "@/app/admin/actions";
-import type { MenuRow } from "@/lib/database.types";
+import type { MenuRow, BranchRow } from "@/lib/types";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+// ─── Default Blank Object ────────────────────────────────────────────────────────────────────
 
 interface AdminDashboardProps {
   initialMenus: MenuRow[];
+  initialBranches: BranchRow[];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function AdminDashboard({ initialMenus }: AdminDashboardProps) {
+export default function AdminDashboard({ initialMenus, initialBranches }: AdminDashboardProps) {
   const [menus, setMenus]                 = useState<MenuRow[]>(initialMenus);
+  const [branches, setBranches]           = useState<BranchRow[]>(initialBranches);
+  const [activeTab, setActiveTab]         = useState<"menu" | "branches">("menu");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPending, startTransition]      = useTransition();
   const [isLogoutPending, startLogout]    = useTransition();
   const [isSubmitting, setIsSubmitting]   = useState(false);
@@ -56,6 +65,14 @@ export default function AdminDashboard({ initialMenus }: AdminDashboardProps) {
       const { data, error } = await getMenusAction();
       if (error) toast.error("Failed to refresh menu list.");
       else setMenus(data);
+    });
+  }, []);
+
+  const refreshBranches = useCallback(() => {
+    startTransition(async () => {
+      const { data, error } = await getBranchesAction();
+      if (error) toast.error("Failed to refresh branches list.");
+      else setBranches(data);
     });
   }, []);
 
@@ -128,7 +145,7 @@ export default function AdminDashboard({ initialMenus }: AdminDashboardProps) {
 
   return (
     <div
-      className="min-h-screen bg-cream"
+      className="min-h-screen bg-[#FDFCF8] flex overflow-hidden"
       style={{ fontFamily: "var(--font-inter), sans-serif" }}
     >
       {/* ── Toast Container ── */}
@@ -146,204 +163,210 @@ export default function AdminDashboard({ initialMenus }: AdminDashboardProps) {
         }}
       />
 
-      {/* ── Header ── */}
-      <header className="bg-forest-green sticky top-0 z-30 shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
+      {/* ── Mobile Sidebar Overlay ── */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[45] md:hidden transition-opacity duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
-          {/* Logo + Title */}
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-deep-red flex items-center justify-center">
-              <Coffee size={16} className="text-white" />
-            </div>
-            <div>
-              <span
-                className="text-cream font-black text-lg leading-none"
-                style={{ fontFamily: "var(--font-playfair), serif" }}
-              >
-                Triple A
-              </span>
-              <span className="text-cream/50 text-[10px] font-semibold tracking-widest uppercase block leading-none mt-0.5">
-                Admin Dashboard
-              </span>
-            </div>
+      {/* ── Sidebar ── */}
+      <aside 
+        className={`bg-forest-green text-white w-64 flex-shrink-0 flex flex-col transition-all duration-300 z-50 fixed inset-y-0 left-0 md:relative md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <div className="p-6 flex items-center gap-3 border-b border-white/10">
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-white shrink-0">
+            <Image 
+              src="/images/logo/logobaru.png" 
+              alt="Logo" 
+              width={40} 
+              height={40} 
+              className="w-full h-full object-cover"
+            />
           </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={openAddModal}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-deep-red text-white text-[13px] font-bold hover:bg-deep-red/90 transition active:scale-[0.98] cursor-pointer"
-            >
-              <Plus size={15} />
-              <span className="hidden sm:inline">Add Menu</span>
-            </button>
-            <button
-              onClick={handleLogout}
-              disabled={isLogoutPending}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-cream/70 hover:text-cream hover:bg-white/10 text-[13px] font-medium transition disabled:opacity-50 cursor-pointer"
-            >
-              <LogOut size={15} />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* ── Main Content ── */}
-      <main className="max-w-7xl mx-auto px-6 md:px-10 py-10">
-
-        {/* Page Title Row */}
-        <div className="flex items-start justify-between mb-8 gap-4">
           <div>
-            <h2
-              className="text-3xl font-black text-forest-green"
-              style={{ fontFamily: "var(--font-playfair), serif" }}
+            <h1 className="text-[13px] font-black tracking-wider uppercase leading-none" style={{ fontFamily: "var(--font-playfair), serif" }}>
+              Triple A Coffee
+            </h1>
+            <span className="text-[9px] text-white/50 font-bold tracking-widest uppercase mt-1 block">Admin Panel</span>
+          </div>
+        </div>
+
+        <nav className="flex-1 p-4 space-y-2 mt-4">
+          <button
+            onClick={() => setActiveTab("menu")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+              activeTab === "menu" 
+                ? "bg-deep-red text-white shadow-lg" 
+                : "text-white/60 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <MenuIcon size={18} />
+            <span>Menu Items</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("branches")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+              activeTab === "branches" 
+                ? "bg-deep-red text-white shadow-lg" 
+                : "text-white/60 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <MapPin size={18} />
+            <span>Cabang</span>
+          </button>
+        </nav>
+
+        <div className="p-4 border-t border-white/10">
+          <button
+            onClick={handleLogout}
+            disabled={isLogoutPending}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-50"
+          >
+            <LogOut size={18} />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main Content Area ── */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        {/* Header (Top Bar) */}
+        <header className="bg-white border-b border-gray-100 h-16 flex items-center justify-between px-6 md:px-10 sticky top-0 z-30">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="md:hidden p-2 text-gray-500 hover:bg-gray-50 rounded-lg"
             >
-              Menu Items
+              <MenuIcon size={20} />
+            </button>
+            <h2 className="text-lg font-bold text-forest-green capitalize">
+              {activeTab === 'menu' ? 'Menu Management' : 'Branch Management'}
             </h2>
-            <p className="text-forest-green/50 text-sm mt-1">
-              {menus.length} {menus.length === 1 ? "item" : "items"} in your menu
-            </p>
           </div>
 
-          {/* Refresh indicator */}
-          {isPending && (
-            <div className="flex items-center gap-2 text-forest-green/50 text-sm">
-              <Loader2 size={14} className="animate-spin" />
-              Refreshing…
-            </div>
-          )}
-        </div>
-
-        {/* ── Table Card ── */}
-        <div className="bg-white rounded-3xl shadow-md overflow-hidden">
-
-          {menus.length === 0 ? (
-            // ── Empty State ──
-            <div className="flex flex-col items-center justify-center py-24 text-center px-6">
-              <div className="w-16 h-16 rounded-2xl bg-cream flex items-center justify-center mb-5">
-                <UtensilsCrossed size={28} className="text-forest-green/30" />
+          <div className="flex items-center gap-4">
+            {isPending && (
+              <div className="flex items-center gap-2 text-forest-green/30 text-xs text-right">
+                <Loader2 size={12} className="animate-spin" />
+                Updating...
               </div>
-              <h3
-                className="text-xl font-black text-forest-green mb-2"
-                style={{ fontFamily: "var(--font-playfair), serif" }}
-              >
-                No menu items yet
-              </h3>
-              <p className="text-forest-green/50 text-sm max-w-xs mb-6">
-                Start building your menu by adding your first signature item.
-              </p>
-              <button
-                onClick={openAddModal}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-deep-red text-white text-sm font-bold hover:bg-deep-red/90 transition cursor-pointer"
-              >
-                <Plus size={15} />
-                Add First Item
-              </button>
+            )}
+            <div className="h-8 w-[1px] bg-gray-100 hidden sm:block" />
+            <div className="text-right hidden sm:block">
+              <p className="text-xs font-bold text-forest-green">Administrator</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-tighter">Triple A Coffee Admin</p>
             </div>
-          ) : (
-            // ── Data Table ──
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-160">
-                <thead>
-                  <tr className="border-b border-forest-green/8">
-                    <th className={thCx + " w-16 text-center"} />
-                    <th className={thCx}>Name</th>
-                    <th className={thCx}>Price</th>
-                    <th className={thCx + " text-center"}>Signature</th>
-                    <th className={thCx + " text-right"}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {menus.map((item, i) => (
-                    <tr
-                      key={item.id}
-                      className={`border-b border-forest-green/6 transition-colors hover:bg-cream/40 ${
-                        i % 2 === 0 ? "bg-white" : "bg-cream/20"
-                      }`}
+          </div>
+        </header>
+
+        <main className="p-6 md:p-10 max-w-6xl mx-auto w-full flex-1">
+          {activeTab === "menu" ? (
+            <>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+                <div>
+                  <h3
+                    className="text-2xl sm:text-3xl font-black text-forest-green"
+                    style={{ fontFamily: "var(--font-playfair), serif" }}
+                  >
+                    Inventory
+                  </h3>
+                  <div className="flex items-center gap-3 mt-1">
+                    <p className="text-forest-green/50 text-xs sm:text-sm">
+                      {menus.length} total items in registry
+                    </p>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={openAddModal}
+                  className="flex items-center justify-center gap-2 px-4 py-1.5 sm:px-5 sm:py-2.5 bg-deep-red text-white rounded-xl font-bold text-sm hover:bg-deep-red/90 transition-all shadow-md active:scale-95 w-full sm:w-auto cursor-pointer"
+                >
+                  <Plus size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  <span>Add New Item</span>
+                </button>
+              </div>
+
+              {/* Table Card */}
+              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden min-h-[400px]">
+                {menus.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-24 text-center px-6">
+                    <div className="w-16 h-16 rounded-3xl bg-cream flex items-center justify-center mb-5">
+                      <UtensilsCrossed size={28} className="text-forest-green/30" />
+                    </div>
+                    <h4 className="text-xl font-bold text-forest-green mb-2">No menu items found</h4>
+                    <button
+                      onClick={openAddModal}
+                      className="mt-4 px-6 py-2 bg-deep-red text-white rounded-xl font-bold text-sm hover:bg-deep-red/90 transition-colors"
                     >
-                      {/* Thumbnail */}
-                      <td className="px-4 py-3">
-                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-cream flex items-center justify-center shrink-0">
-                          {item.image_url ? (
-                            <Image
-                              src={item.image_url}
-                              alt={item.name}
-                              width={48}
-                              height={48}
-                              className="object-cover w-full h-full"
-                            />
-                          ) : (
-                            <ImageOff size={18} className="text-forest-green/25" />
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Name + Description */}
-                      <td className="px-4 py-3">
-                        <p className="text-sm font-bold text-forest-green leading-snug">
-                          {item.name}
-                        </p>
-                        {item.description && (
-                          <p className="text-xs text-forest-green/45 mt-0.5 line-clamp-1 max-w-xs">
-                            {item.description}
-                          </p>
-                        )}
-                      </td>
-
-                      {/* Price */}
-                      <td className="px-4 py-3">
-                        <span className="text-sm font-black text-deep-red whitespace-nowrap">
-                          Rp {Number(item.price).toLocaleString("id-ID")}
-                        </span>
-                      </td>
-
-                      {/* Signature badge */}
-                      <td className="px-4 py-3 text-center">
-                        {item.is_signature ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-deep-red/10 text-deep-red text-[10px] font-bold tracking-wider uppercase">
-                            <Star size={9} fill="currentColor" />
-                            Yes
-                          </span>
-                        ) : (
-                          <span className="text-forest-green/30 text-xs">—</span>
-                        )}
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => openEditModal(item)}
-                            className="p-2 rounded-xl text-forest-green/50 hover:text-forest-green hover:bg-forest-green/8 transition cursor-pointer"
-                            title="Edit"
-                          >
-                            <Pencil size={15} />
-                          </button>
-                          <button
-                            onClick={() => setDeleteTarget(item)}
-                            className="p-2 rounded-xl text-forest-green/50 hover:text-deep-red hover:bg-deep-red/8 transition cursor-pointer"
-                            title="Delete"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      Add First Item
+                    </button>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50/50 border-b border-gray-100">
+                          <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Item</th>
+                          <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Category</th>
+                          <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Price</th>
+                          <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {menus.map((item) => (
+                          <tr key={item.id} className="hover:bg-gray-50/5 transition group">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-gray-50 overflow-hidden relative border border-gray-100">
+                                  {item.image_url ? (
+                                    <Image src={item.image_url} alt={item.name} fill className="object-cover" />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <ImageOff size={16} className="text-gray-300" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <h5 className="font-bold text-forest-green text-sm">{item.name}</h5>
+                                    {item.is_signature && <Star size={10} className="text-amber-500" fill="currentColor" />}
+                                  </div>
+                                  <p className="text-[12px] text-gray-400 line-clamp-1">{item.description}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="px-2.5 py-1 rounded-lg bg-cream/50 text-forest-green text-[11px] font-bold capitalize">
+                                {item.category}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 font-bold text-forest-green text-sm">
+                              Rp {Number(item.price).toLocaleString('id-ID')}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onClick={() => openEditModal(item)} className="p-2 text-gray-400 hover:text-blue-600 rounded-lg transition-colors cursor-pointer"><Pencil size={15} /></button>
+                                <button onClick={() => setDeleteTarget(item)} className="p-2 text-gray-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer"><Trash2 size={15} /></button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <BranchManagement 
+              initialBranches={branches} 
+              onRefresh={refreshBranches} 
+            />
           )}
-        </div>
-
-        {/* Table footer info */}
-        {menus.length > 0 && (
-          <p className="text-center text-forest-green/35 text-[11px] mt-4 tracking-wide">
-            Showing all {menus.length} menu items · sorted by newest first
-          </p>
-        )}
-      </main>
+        </main>
+      </div>
 
       {/* ── Add / Edit Modal ── */}
       {modalOpen && (
@@ -362,7 +385,7 @@ export default function AdminDashboard({ initialMenus }: AdminDashboardProps) {
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ backgroundColor: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
         >
-          <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center animate-in zoom-in-95 duration-200">
             <div className="w-14 h-14 rounded-2xl bg-deep-red/10 flex items-center justify-center mx-auto mb-5">
               <Trash2 size={24} className="text-deep-red" />
             </div>
@@ -379,8 +402,7 @@ export default function AdminDashboard({ initialMenus }: AdminDashboardProps) {
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteTarget(null)}
-                disabled={isDeleting}
-                className="flex-1 py-3 rounded-xl border border-forest-green/20 text-forest-green text-sm font-semibold hover:bg-forest-green/5 transition disabled:opacity-50 cursor-pointer"
+                className="flex-1 py-3 rounded-xl border border-forest-green/20 text-forest-green text-sm font-semibold hover:bg-forest-green/5 transition cursor-pointer"
               >
                 Cancel
               </button>

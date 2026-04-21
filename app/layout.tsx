@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
+import { ScrollProgress } from "@/components/ScrollProgress";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -27,10 +28,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${playfair.variable} ${inter.variable} antialiased`}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${playfair.variable} ${inter.variable} antialiased`} suppressHydrationWarning>
+        <ScrollProgress />
         {children}
       </body>
     </html>

@@ -1,10 +1,11 @@
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
 export const NAV_LINKS = [
-  { label: "Home",   href: "#home" },
-  { label: "Story",  href: "#story" },
-  { label: "Mascot", href: "#mascot" },
-  { label: "Menu",   href: "#menu" },
+  { label: "Home",     href: "#home" },
+  { label: "Story",    href: "#story" },
+  { label: "Mascot",   href: "#mascot" },
+  { label: "Menu",     href: "#menu" },
+  { label: "Branches", href: "/branches" },
 ];
 
 // ─── Menu Items ───────────────────────────────────────────────────────────────

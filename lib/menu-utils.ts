@@ -1,4 +1,4 @@
-import type { MenuRow } from "@/lib/database.types";
+import type { MenuRow } from "@/lib/types";
 
 /**
  * Normalised shape used by the menu cards.
@@ -13,17 +13,19 @@ export type DisplayMenuItem = {
   img:   string | null;
   badge: string | null;
   notes: string[];
+  category: string;
 };
 
 /** Convert a Supabase MenuRow to the display model. */
 export function menuRowToDisplay(row: MenuRow): DisplayMenuItem {
   return {
-    id:    row.id,
+    id:    row.id.toString(),
     name:  row.name,
     price: `Rp ${Number(row.price).toLocaleString("id-ID")}`,
     desc:  row.description ?? "",
     img:   row.image_url,
     badge: row.is_signature ? "Signature" : null,
     notes: [],
+    category: row.category || "coffee"
   };
 }
