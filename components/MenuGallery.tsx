@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { Maximize2, Camera, Instagram } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Maximize2, Camera, Instagram, X } from "lucide-react";
 import { Button } from "./ui/button";
 
 // ─── Gallery Data ────────────────────────────────────────────────────────────
@@ -54,6 +55,20 @@ const GALLERY_ITEMS: GalleryItem[] = [
 ];
 
 export default function MenuGallery() {
+  const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+
+  // Disable scroll when modal is open
+  useEffect(() => {
+    if (selectedItem) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [selectedItem]);
+
   return (
     <section id="gallery" className="py-24 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4 md:px-10 relative z-10">
@@ -83,18 +98,23 @@ export default function MenuGallery() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.8, ease: "easeOut" }}
-              whileHover={{ scale: 1.05 }}
-              className="group relative aspect-[3/4] rounded-[2rem] overflow-hidden cursor-pointer border border-gray-100 shadow-sm transition-all duration-300"
+              whileHover={{ scale: 1.02 }}
+              onClick={() => setSelectedItem(item)}
+              className="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden cursor-pointer border border-gray-100 shadow-sm transition-all duration-300"
             >
               <Image
                 src={item.img}
                 alt={item.title}
                 fill
-                className="object-cover"
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
               />
 
-              {/* Simple subtle overlay on hover */}
-              <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Hover Overlay */}
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
+                <div className="bg-white/20 p-4 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500">
+                  <Maximize2 size={32} className="text-white" />
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -109,6 +129,50 @@ export default function MenuGallery() {
           </Button>
         </div>
       </div>
+
+      {/* Full-screen Image Popup */}
+      <AnimatePresence>
+        {selectedItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 cursor-zoom-out"
+            onClick={() => setSelectedItem(null)}
+          >
+            {/* Background Blur */}
+            <div className="absolute inset-0 bg-forest-green/80 backdrop-blur-md" />
+            
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute top-6 right-6 text-white/70 hover:text-white z-[110] bg-white/10 p-2 rounded-full transition-colors"
+              onClick={() => setSelectedItem(null)}
+            >
+              <X size={32} />
+            </motion.button>
+
+            <motion.div
+              layoutId={selectedItem.id}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-[500px] aspect-[3/4] bg-white rounded-[2.5rem] overflow-hidden shadow-2xl cursor-default"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Image
+                src={selectedItem.img}
+                alt={selectedItem.title}
+                fill
+                className="object-cover"
+                quality={100}
+                priority
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

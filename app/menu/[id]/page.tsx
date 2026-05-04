@@ -44,10 +44,10 @@ export default async function MenuDetailPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      <div className="container mx-auto px-4 mt-8 lg:mt-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 mt-8 lg:mt-12 max-w-5xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           {/* Image Section */}
-          <div className="relative aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl bg-cream/30">
+          <div className="relative aspect-square md:aspect-[4/5] rounded-[2rem] overflow-hidden shadow-xl bg-cream/30">
             {item.img ? (
               <Image
                 src={item.img}
@@ -62,10 +62,10 @@ export default async function MenuDetailPage({ params }: { params: Promise<{ id:
               </div>
             )}
             {item.badge && (
-              <div className="absolute top-6 right-6">
-                <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 shadow-lg border border-white/20">
-                  <Star size={16} className="text-deep-red fill-deep-red" />
-                  <span className="text-sm font-black text-forest-green uppercase tracking-wider">
+              <div className="absolute top-4 right-4">
+                <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg border border-white/20">
+                  <Star size={14} className="text-deep-red fill-deep-red" />
+                  <span className="text-xs font-black text-forest-green uppercase tracking-wider">
                     {item.badge}
                   </span>
                 </div>
@@ -74,39 +74,39 @@ export default async function MenuDetailPage({ params }: { params: Promise<{ id:
           </div>
 
           {/* Content Section */}
-          <div className="space-y-8">
-            <div className="space-y-4">
+          <div className="space-y-6">
+            <div className="space-y-3">
               <h1 
-                className="text-5xl md:text-7xl font-bold text-forest-green leading-tight"
+                className="text-4xl md:text-5xl font-bold text-forest-green leading-tight"
                 style={{ fontFamily: 'var(--font-playfair), serif' }}
               >
                 {item.name}
               </h1>
               <div className="flex items-center gap-4">
-                <span className="text-3xl md:text-4xl font-black text-deep-red">
+                <span className="text-2xl md:text-3xl font-black text-deep-red">
                   {item.price}
                 </span>
-                <div className="h-6 w-px bg-gray-200" />
-                <div className="flex items-center gap-1.5 text-gray-500 font-medium">
-                  <Clock size={18} />
+                <div className="h-5 w-px bg-gray-200" />
+                <div className="flex items-center gap-1.5 text-gray-500 font-medium text-sm">
+                  <Clock size={16} />
                   <span>Available Now</span>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold uppercase tracking-widest text-gray-400">Description</h3>
-              <p className="text-xl text-gray-600 leading-relaxed font-medium">
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Description</h3>
+              <p className="text-lg text-gray-600 leading-relaxed font-medium">
                 {item.desc}
               </p>
             </div>
 
-            <div className="pt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Button className="h-16 rounded-2xl bg-forest-green hover:bg-forest-green/90 text-white font-bold text-lg gap-2 shadow-lg transition-all active:scale-95">
-                <BadgeCheck size={20} />
+            <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Button className="h-14 rounded-xl bg-forest-green hover:bg-forest-green/90 text-white font-bold text-base gap-2 shadow-lg transition-all active:scale-95">
+                <BadgeCheck size={18} />
                 Order Now
               </Button>
-              <Button variant="outline" className="h-16 rounded-2xl border-2 border-forest-green text-forest-green font-bold text-lg hover:bg-forest-green/5 transition-all">
+              <Button variant="outline" className="h-14 rounded-xl border-2 border-forest-green text-forest-green font-bold text-base hover:bg-forest-green/5 transition-all">
                 Add to Favorites
               </Button>
             </div>

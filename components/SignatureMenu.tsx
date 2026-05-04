@@ -88,7 +88,7 @@ export default function SignatureMenu({ items }: SignatureMenuProps) {
         </div>
 
         {/* Menu Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <AnimatePresence mode="popLayout">
             {filteredItems.map((item, i) => (
               <motion.div
@@ -100,8 +100,8 @@ export default function SignatureMenu({ items }: SignatureMenuProps) {
                 transition={{ duration: 0.4, ease: "easeOut", delay: i * 0.05 }}
               >
                 <Link href={`/menu/${item.id}`} className="block h-full group">
-                  <Card className="h-full flex flex-col rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500 bg-white">
-                    <CardHeader className="p-0 relative overflow-hidden aspect-[4/3] sm:aspect-square lg:aspect-[4/3]">
+                  <Card className="h-full flex flex-col rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500 bg-white">
+                    <CardHeader className="p-0 relative overflow-hidden aspect-[4/3]">
                       {item.img ? (
                         <Image
                           src={item.img}
@@ -115,10 +115,10 @@ export default function SignatureMenu({ items }: SignatureMenuProps) {
                         </div>
                       )}
                       {item.badge && (
-                        <div className="absolute top-4 right-4 z-10">
-                          <div className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm border border-white/20">
-                            <Star size={12} className="text-deep-red fill-deep-red" />
-                            <span className="text-[10px] font-black text-forest-green uppercase tracking-wider">
+                        <div className="absolute top-3 right-3 z-10">
+                          <div className="bg-white/90 backdrop-blur-md px-2.5 py-0.5 rounded-full flex items-center gap-1.5 shadow-sm border border-white/20">
+                            <Star size={10} className="text-deep-red fill-deep-red" />
+                            <span className="text-[9px] font-black text-forest-green uppercase tracking-wider">
                               {item.badge}
                             </span>
                           </div>
@@ -126,20 +126,20 @@ export default function SignatureMenu({ items }: SignatureMenuProps) {
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-forest-green/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                     </CardHeader>
-                    <CardContent className="p-6 md:p-8 flex-grow flex flex-col">
-                      <div className="space-y-3 flex-grow">
-                        <div className="flex justify-between items-start gap-4">
+                    <CardContent className="p-5 md:p-6 flex-grow flex flex-col">
+                      <div className="space-y-2 flex-grow">
+                        <div className="flex justify-between items-start gap-3">
                           <CardTitle
-                            className="text-xl md:text-2xl font-bold text-forest-green group-hover:text-deep-red transition-colors tracking-tight"
+                            className="text-lg md:text-xl font-bold text-forest-green group-hover:text-deep-red transition-colors tracking-tight"
                             style={{ fontFamily: "var(--font-playfair), serif" }}
                           >
                             {item.name}
                           </CardTitle>
-                          <span className="text-lg md:text-xl font-black text-deep-red shrink-0">
+                          <span className="text-base md:text-lg font-black text-deep-red shrink-0">
                             {item.price}
                           </span>
                         </div>
-                        <p className="text-gray-500 text-sm font-medium leading-relaxed italic line-clamp-2">
+                        <p className="text-gray-500 text-xs font-medium leading-relaxed italic line-clamp-2">
                           {item.desc}
                         </p>
                       </div>
